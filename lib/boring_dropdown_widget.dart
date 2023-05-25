@@ -14,6 +14,7 @@ class BoringDropdown<T> extends StatefulWidget {
     this.inputDecoration,
     this.searchInputDecoration,
     this.enabled = true,
+    TextEditingController? searchController,
     this.searchMatchFunction,
     this.leadingOnSearchField,
     required T? this.value,
@@ -22,6 +23,7 @@ class BoringDropdown<T> extends StatefulWidget {
         _isMultiChoice = false,
         checkedIcon = null,
         unCheckedIcon = null,
+        searchController = searchController ?? TextEditingController(),
         super(key: key);
 
   BoringDropdown.multichoice(
@@ -36,12 +38,14 @@ class BoringDropdown<T> extends StatefulWidget {
       this.enabled = true,
       this.searchInputDecoration,
       this.searchMatchFunction,
+      TextEditingController? searchController,
       this.leadingOnSearchField,
       this.checkedIcon,
       this.unCheckedIcon})
       : _items = ValueNotifier(items),
         _originalItems = items,
         _isMultiChoice = true,
+        searchController = searchController ?? TextEditingController(),
         super(key: key);
 
   final ValueNotifier<List<DropdownMenuItem<T>>> _items;
@@ -58,6 +62,7 @@ class BoringDropdown<T> extends StatefulWidget {
   final bool _isMultiChoice;
   final Widget onSearchFeedback;
   final Widget? leadingOnSearchField;
+  final TextEditingController searchController;
   dynamic onChanged;
   dynamic value;
 
@@ -67,9 +72,6 @@ class BoringDropdown<T> extends StatefulWidget {
 
 class _BoringDropdownState<T> extends State<BoringDropdown<T>> {
   final TextEditingController _mainTextFieldController =
-      TextEditingController();
-
-  final TextEditingController _searchTextFieldController =
       TextEditingController();
 
   OverlayEntry? entry;
@@ -140,7 +142,7 @@ class _BoringDropdownState<T> extends State<BoringDropdown<T>> {
   }
 
   void hideOverlay() {
-    _searchTextFieldController.text = '';
+    widget.searchController.text = '';
     entry?.remove();
     entry = null;
   }
@@ -148,7 +150,7 @@ class _BoringDropdownState<T> extends State<BoringDropdown<T>> {
   TextField _searchWidget(BuildContext context) => TextField(
         focusNode: _searchTextFieldFocusNode,
         decoration: widget.searchInputDecoration ?? const InputDecoration(),
-        controller: _searchTextFieldController,
+        controller: widget.searchController,
         onChanged: (value) {
           if (widget.searchWithFuture != null) {
             _searchWithFuture(value);
@@ -180,7 +182,7 @@ class _BoringDropdownState<T> extends State<BoringDropdown<T>> {
       const Duration(milliseconds: 300),
       () async {
         widget._items.value = await widget.searchWithFuture!.call(searchValue);
-        if (_searchTextFieldController.text.isEmpty) {
+        if (widget.searchController.text.isEmpty) {
           widget._items.value = widget._originalItems;
         }
         _isWriting.value = false;
