@@ -11,6 +11,7 @@ class BoringDropdown<T> extends StatefulWidget {
     this.searchWithFuture,
     this.inputDecoration,
     this.searchInputDecoration,
+    this.enabled = true,
     required T? this.value,
   })  : _items = ValueNotifier(items),
         _originalItems = items,
@@ -27,6 +28,7 @@ class BoringDropdown<T> extends StatefulWidget {
       this.onSearchFeedback = const CircularProgressIndicator(),
       this.searchWithFuture,
       this.inputDecoration,
+      this.enabled = true,
       this.searchInputDecoration,
       required List<T>? this.value,
       this.checkedIcon,
@@ -40,7 +42,7 @@ class BoringDropdown<T> extends StatefulWidget {
   final List<DropdownMenuItem<T>> _originalItems;
   final InputDecoration? inputDecoration;
   final InputDecoration? searchInputDecoration;
-
+  final bool enabled;
   final String Function(T element) convertItemToString;
   final Future<List<DropdownMenuItem<T>>> Function(String searchValue)?
       searchWithFuture;
@@ -272,6 +274,7 @@ class _BoringDropdownState<T> extends State<BoringDropdown<T>> {
     return CompositedTransformTarget(
       link: layerLink,
       child: TextField(
+        enabled: widget.enabled,
         onTap: () {
           showOverlay(context);
         },
