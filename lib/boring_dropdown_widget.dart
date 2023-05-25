@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 
+typedef BoringDropdownKey = GlobalKey<_BoringDropdownState>;
+
 class BoringDropdown<T> extends StatefulWidget {
   BoringDropdown({
     Key? key,
@@ -13,6 +15,7 @@ class BoringDropdown<T> extends StatefulWidget {
     this.searchInputDecoration,
     this.enabled = true,
     this.searchMatchFunction,
+    this.leadingOnSearchField,
     required T? this.value,
   })  : _items = ValueNotifier(items),
         _originalItems = items,
@@ -26,13 +29,14 @@ class BoringDropdown<T> extends StatefulWidget {
       required List<DropdownMenuItem<T>> items,
       required this.convertItemToString,
       required void Function(List<T> selectedElements) this.onChanged,
+      required List<T>? this.value,
       this.onSearchFeedback = const CircularProgressIndicator(),
       this.searchWithFuture,
       this.inputDecoration,
       this.enabled = true,
       this.searchInputDecoration,
       this.searchMatchFunction,
-      required List<T>? this.value,
+      this.leadingOnSearchField,
       this.checkedIcon,
       this.unCheckedIcon})
       : _items = ValueNotifier(items),
@@ -53,6 +57,7 @@ class BoringDropdown<T> extends StatefulWidget {
   final Icon? unCheckedIcon;
   final bool _isMultiChoice;
   final Widget onSearchFeedback;
+  final Widget? leadingOnSearchField;
   dynamic onChanged;
   dynamic value;
 
@@ -112,7 +117,12 @@ class _BoringDropdownState<T> extends State<BoringDropdown<T>> {
                       children: [
                         Padding(
                           padding: const EdgeInsets.all(8.0),
-                          child: _searchWidget(context),
+                          child: Row(
+                            children: [
+                              widget.leadingOnSearchField ?? Container(),
+                              Expanded(child: _searchWidget(context)),
+                            ],
+                          ),
                         ),
                         _overlay(context),
                       ],
@@ -129,6 +139,12 @@ class _BoringDropdownState<T> extends State<BoringDropdown<T>> {
     WidgetsBinding.instance.addPostFrameCallback((_) => overlay.insert(entry!));
   }
 
+  void hideOverlay() {
+    _searchTextFieldController.text = '';
+    entry?.remove();
+    entry = null;
+  }
+
   TextField _searchWidget(BuildContext context) => TextField(
         focusNode: _searchTextFieldFocusNode,
         decoration: widget.searchInputDecoration ?? const InputDecoration(),
@@ -142,14 +158,13 @@ class _BoringDropdownState<T> extends State<BoringDropdown<T>> {
         },
       );
 
-  void hideOverlay() {
-    _searchTextFieldController.text = '';
-    entry?.remove();
-    entry = null;
-  }
-
   Future<void> _searchWithFuture(String searchValue) async {
     _isWriting.value = true;
+    _searchLocally(searchValue);
+    if (widget._items.value.isNotEmpty) {
+      _isWriting.value = false;
+      return;
+    }
     if (searchValue.isEmpty) {
       _timer!.cancel();
       _timer = null;
@@ -164,8 +179,6 @@ class _BoringDropdownState<T> extends State<BoringDropdown<T>> {
     _timer = Timer(
       const Duration(milliseconds: 300),
       () async {
-        // non togliere anche se sembra inutile, non lo e'
-
         widget._items.value = await widget.searchWithFuture!.call(searchValue);
         if (_searchTextFieldController.text.isEmpty) {
           widget._items.value = widget._originalItems;
@@ -201,55 +214,59 @@ class _BoringDropdownState<T> extends State<BoringDropdown<T>> {
           : ValueListenableBuilder(
               valueListenable: widget._items,
               builder: (context, dropdownItems, child) {
-                return ListView.builder(
-                  itemCount: dropdownItems.length,
-                  shrinkWrap: true,
-                  itemBuilder: (context, index) {
-                    T val = dropdownItems[index].value as T;
-                    final isContained = widget._isMultiChoice
-                        ? (widget.value as List<T>?)?.contains(val) ?? false
-                        : false;
+                return Flexible(
+                  child: ListView.builder(
+                    itemCount: dropdownItems.length,
+                    shrinkWrap: true,
+                    physics: const BouncingScrollPhysics(),
+                    itemBuilder: (context, index) {
+                      T val = dropdownItems[index].value as T;
+                      final isContained = widget._isMultiChoice
+                          ? (widget.value as List<T>?)?.contains(val) ?? false
+                          : false;
 
-                    ValueNotifier<bool> isSelected = ValueNotifier(isContained);
+                      ValueNotifier<bool> isSelected =
+                          ValueNotifier(isContained);
 
-                    return ValueListenableBuilder(
-                      valueListenable: isSelected,
-                      builder: (context, selected, child) => ListTile(
-                        title: dropdownItems[index].child,
-                        leading: widget._isMultiChoice
-                            ? selected
-                                ? widget.checkedIcon ??
-                                    const Icon(Icons.check_box)
-                                : widget.unCheckedIcon ??
-                                    const Icon(Icons.check_box_outline_blank)
-                            : null,
-                        contentPadding:
-                            const EdgeInsets.symmetric(horizontal: 10),
-                        onTap: () {
-                          if (widget._isMultiChoice) {
-                            List<T>? selectedItems = widget.value;
+                      return ValueListenableBuilder(
+                        valueListenable: isSelected,
+                        builder: (context, selected, child) => ListTile(
+                          title: dropdownItems[index].child,
+                          leading: widget._isMultiChoice
+                              ? selected
+                                  ? widget.checkedIcon ??
+                                      const Icon(Icons.check_box)
+                                  : widget.unCheckedIcon ??
+                                      const Icon(Icons.check_box_outline_blank)
+                              : null,
+                          contentPadding:
+                              const EdgeInsets.symmetric(horizontal: 10),
+                          onTap: () {
+                            if (widget._isMultiChoice) {
+                              List<T>? selectedItems = widget.value;
 
-                            if (selectedItems == null) {
-                              selectedItems = [val];
-                              isSelected.value = true;
-                            } else {
-                              if (selectedItems.contains(val)) {
-                                selectedItems.remove(val);
-                                isSelected.value = false;
-                              } else {
-                                selectedItems.add(val);
+                              if (selectedItems == null) {
+                                selectedItems = [val];
                                 isSelected.value = true;
+                              } else {
+                                if (selectedItems.contains(val)) {
+                                  selectedItems.remove(val);
+                                  isSelected.value = false;
+                                } else {
+                                  selectedItems.add(val);
+                                  isSelected.value = true;
+                                }
                               }
+                              widget.onChanged(selectedItems);
+                            } else {
+                              widget.onChanged(val);
+                              hideOverlay();
                             }
-                            widget.onChanged(selectedItems);
-                          } else {
-                            widget.onChanged(val);
-                            hideOverlay();
-                          }
-                        },
-                      ),
-                    );
-                  },
+                          },
+                        ),
+                      );
+                    },
+                  ),
                 );
               },
             ),
