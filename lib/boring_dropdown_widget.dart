@@ -12,6 +12,7 @@ class BoringDropdown<T> extends StatefulWidget {
     this.inputDecoration,
     this.searchInputDecoration,
     this.enabled = true,
+    this.searchMatchFunction,
     required T? this.value,
   })  : _items = ValueNotifier(items),
         _originalItems = items,
@@ -30,6 +31,7 @@ class BoringDropdown<T> extends StatefulWidget {
       this.inputDecoration,
       this.enabled = true,
       this.searchInputDecoration,
+      this.searchMatchFunction,
       required List<T>? this.value,
       this.checkedIcon,
       this.unCheckedIcon})
@@ -46,6 +48,7 @@ class BoringDropdown<T> extends StatefulWidget {
   final String Function(T element) convertItemToString;
   final Future<List<DropdownMenuItem<T>>> Function(String searchValue)?
       searchWithFuture;
+  final bool Function(T value, String searchValue)? searchMatchFunction;
   final Icon? checkedIcon;
   final Icon? unCheckedIcon;
   final bool _isMultiChoice;
@@ -179,6 +182,7 @@ class _BoringDropdownState<T> extends State<BoringDropdown<T>> {
     }
     widget._items.value = widget._items.value
         .where((element) =>
+            widget.searchMatchFunction?.call(element.value as T, searchValue) ??
             _defaultSearchMatchFunction(element.value as T, searchValue))
         .toList();
   }
