@@ -280,15 +280,16 @@ class _BoringDropdownState<T> extends State<BoringDropdown<T>> {
 
   @override
   void didUpdateWidget(covariant BoringDropdown<T> oldWidget) {
-    if (widget.value != null) {
-      if (widget._isMultiChoice) {
-        _mainTextFieldController.text =
-            _getMultichoiceStringValue(widget.value as List<T>);
-      } else {
-        _mainTextFieldController.text =
-            widget.convertItemToString(widget.value as T);
-      }
+    if (widget._isMultiChoice) {
+      _mainTextFieldController.text = widget.value == null
+          ? ''
+          : _getMultichoiceStringValue(widget.value as List<T>);
+    } else {
+      _mainTextFieldController.text = widget.value == null
+          ? ''
+          : widget.convertItemToString(widget.value as T);
     }
+
     super.didUpdateWidget(oldWidget);
   }
 
