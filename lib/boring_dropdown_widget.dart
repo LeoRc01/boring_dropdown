@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 typedef BoringDropdownKey = GlobalKey<_BoringDropdownState>;
@@ -14,6 +15,7 @@ class BoringDropdown<T> extends StatefulWidget {
     this.inputDecoration,
     this.searchInputDecoration,
     this.enabled = true,
+    this.validator,
     TextEditingController? searchController,
     this.searchMatchFunction,
     this.leadingOnSearchField,
@@ -36,6 +38,7 @@ class BoringDropdown<T> extends StatefulWidget {
       this.searchWithFuture,
       this.inputDecoration,
       this.enabled = true,
+      this.validator,
       this.searchInputDecoration,
       this.searchMatchFunction,
       TextEditingController? searchController,
@@ -63,6 +66,8 @@ class BoringDropdown<T> extends StatefulWidget {
   final Widget onSearchFeedback;
   final Widget? leadingOnSearchField;
   final TextEditingController searchController;
+  final String? Function(String?)? validator;
+
   dynamic onChanged;
   dynamic value;
 
@@ -297,8 +302,9 @@ class _BoringDropdownState<T> extends State<BoringDropdown<T>> {
   Widget build(BuildContext context) {
     return CompositedTransformTarget(
       link: layerLink,
-      child: TextField(
+      child: TextFormField(
         enabled: widget.enabled,
+        validator: widget.validator,
         onTap: () {
           showOverlay(context);
         },
