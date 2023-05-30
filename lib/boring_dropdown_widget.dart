@@ -283,8 +283,7 @@ class _BoringDropdownState<T> extends State<BoringDropdown<T>> {
   String _getMultichoiceStringValue(List<T> items) =>
       items.map((e) => widget.convertItemToString(e)).toList().join(", ");
 
-  @override
-  void didUpdateWidget(covariant BoringDropdown<T> oldWidget) {
+  void setVisualValue() {
     if (widget._isMultiChoice) {
       _mainTextFieldController.text = widget.value == null
           ? ''
@@ -294,8 +293,18 @@ class _BoringDropdownState<T> extends State<BoringDropdown<T>> {
           ? ''
           : widget.convertItemToString(widget.value as T);
     }
+  }
 
+  @override
+  void didUpdateWidget(covariant BoringDropdown<T> oldWidget) {
+    setVisualValue();
     super.didUpdateWidget(oldWidget);
+  }
+
+  @override
+  void initState() {
+    setVisualValue();
+    super.initState();
   }
 
   @override
