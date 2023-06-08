@@ -16,6 +16,7 @@ class BoringDropdown<T> extends StatefulWidget {
     this.searchInputDecoration,
     this.enabled = true,
     this.validator,
+    this.autovalidateMode,
     TextEditingController? searchController,
     this.searchMatchFunction,
     this.leadingOnSearchField,
@@ -39,6 +40,7 @@ class BoringDropdown<T> extends StatefulWidget {
       this.inputDecoration,
       this.enabled = true,
       this.validator,
+      this.autovalidateMode,
       this.searchInputDecoration,
       this.searchMatchFunction,
       TextEditingController? searchController,
@@ -67,6 +69,7 @@ class BoringDropdown<T> extends StatefulWidget {
   final Widget? leadingOnSearchField;
   final TextEditingController searchController;
   final String? Function(String?)? validator;
+  final AutovalidateMode? autovalidateMode;
 
   dynamic onChanged;
   dynamic value;
@@ -317,6 +320,7 @@ class _BoringDropdownState<T> extends State<BoringDropdown<T>> {
         onTap: () {
           showOverlay(context);
         },
+        autovalidateMode: widget.autovalidateMode,
         decoration: widget.inputDecoration ?? const InputDecoration(),
         focusNode: _mainTextFieldFocusNode,
         controller: _mainTextFieldController,
