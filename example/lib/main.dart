@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
 class MyHomePage extends StatelessWidget {
   MyHomePage({Key? key}) : super(key: key);
 
-  final ValueNotifier<String?> stringItem = ValueNotifier(null);
+  final ValueNotifier<List<String>?> stringItem = ValueNotifier(null);
 
   final BoringDropdownKey dropdownKey = GlobalKey();
 
@@ -40,7 +40,8 @@ class MyHomePage extends StatelessWidget {
             children: [
               ValueListenableBuilder(
                 valueListenable: stringItem,
-                builder: (context, value, child) => BoringDropdown<String>(
+                builder: (context, value, child) =>
+                    BoringDropdown<String>.multichoice(
                   key: dropdownKey,
                   searchWithFuture: (searchValue) {
                     return Future.delayed(
@@ -60,16 +61,16 @@ class MyHomePage extends StatelessWidget {
                       child: Text(index.toString()),
                     ),
                   ),
-                  leadingOnSearchField: IconButton(
-                    onPressed: () {
-                      stringItem.value = '1231423';
-                      dropdownKey.currentState!.hideOverlay();
-                    },
-                    icon: Icon(Icons.add),
-                  ),
+                  onAdd: (context) async {
+                    await Future.delayed(const Duration(seconds: 3));
+                    return DropdownMenuItem(value: 'ASD', child: Text('ASD'));
+                  },
                   convertItemToString: (element) => element.toString(),
-                  onChanged: (selectedElement) =>
-                      stringItem.value = selectedElement,
+                  onChanged: (selectedElement) {
+                    print(selectedElement);
+                    stringItem.value = selectedElement;
+                    stringItem.notifyListeners();
+                  },
                   value: value,
                 ),
               ),

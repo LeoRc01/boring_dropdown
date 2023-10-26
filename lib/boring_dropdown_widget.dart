@@ -19,7 +19,8 @@ class BoringDropdown<T> extends StatefulWidget {
     this.autovalidateMode,
     TextEditingController? searchController,
     this.searchMatchFunction,
-    this.leadingOnSearchField,
+    this.onAdd,
+    this.onAddIcon = Icons.add,
     required T? this.value,
   })  : _items = ValueNotifier(items),
         _originalItems = items,
@@ -44,8 +45,9 @@ class BoringDropdown<T> extends StatefulWidget {
       this.searchInputDecoration,
       this.searchMatchFunction,
       TextEditingController? searchController,
-      this.leadingOnSearchField,
+      this.onAdd,
       this.checkedIcon,
+      this.onAddIcon = Icons.add,
       this.unCheckedIcon})
       : _items = ValueNotifier(items),
         _originalItems = items,
@@ -66,10 +68,11 @@ class BoringDropdown<T> extends StatefulWidget {
   final Icon? unCheckedIcon;
   final bool _isMultiChoice;
   final Widget onSearchFeedback;
-  final Widget? leadingOnSearchField;
+  final Future<DropdownMenuItem<T>?> Function(BuildContext context)? onAdd;
   final TextEditingController searchController;
   final String? Function(String?)? validator;
   final AutovalidateMode? autovalidateMode;
+  final IconData onAddIcon;
 
   dynamic onChanged;
   dynamic value;
@@ -129,7 +132,14 @@ class _BoringDropdownState<T> extends State<BoringDropdown<T>> {
                           padding: const EdgeInsets.all(8.0),
                           child: Row(
                             children: [
-                              widget.leadingOnSearchField ?? Container(),
+                              widget.onAdd != null
+                                  ? Row(
+                                      children: [
+                                        _onAddWidget(context),
+                                        const SizedBox(width: 10),
+                                      ],
+                                    )
+                                  : Container(),
                               Expanded(child: _searchWidget(context)),
                             ],
                           ),
@@ -147,6 +157,36 @@ class _BoringDropdownState<T> extends State<BoringDropdown<T>> {
     );
 
     WidgetsBinding.instance.addPostFrameCallback((_) => overlay.insert(entry!));
+  }
+
+  Widget _onAddWidget(BuildContext context) => Theme(
+        data: Theme.of(context).copyWith(useMaterial3: true),
+        child: IconButton(
+          onPressed: () {
+            _onAdd(context);
+          },
+          icon: Icon(widget.onAddIcon),
+        ),
+      );
+
+  _onAdd(BuildContext context) async {
+    final newList = widget._items.value;
+    final item = await widget.onAdd!.call(context);
+
+    if (item != null) {
+      newList.add(item);
+      widget._items.value = newList;
+
+      if (widget._isMultiChoice) {
+        widget.value as List;
+        widget.value ??= [];
+        widget.value.insert(0, item.value);
+      } else {
+        widget.value = item.value;
+      }
+      setVisualValue();
+      (widget.key as BoringDropdownKey).currentState!.hideOverlay();
+    }
   }
 
   void hideOverlay() {
