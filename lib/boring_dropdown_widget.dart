@@ -20,7 +20,7 @@ class BoringDropdown<T> extends StatefulWidget {
     TextEditingController? searchController,
     this.searchMatchFunction,
     this.onAdd,
-    this.onAddIcon = Icons.add,
+    this.onAddIcon = const Icon(Icons.add),
     required T? this.value,
   })  : _items = ValueNotifier(items),
         _originalItems = items,
@@ -47,7 +47,7 @@ class BoringDropdown<T> extends StatefulWidget {
       TextEditingController? searchController,
       this.onAdd,
       this.checkedIcon,
-      this.onAddIcon = Icons.add,
+      this.onAddIcon = const Icon(Icons.add),
       this.unCheckedIcon})
       : _items = ValueNotifier(items),
         _originalItems = items,
@@ -72,7 +72,7 @@ class BoringDropdown<T> extends StatefulWidget {
   final TextEditingController searchController;
   final String? Function(String?)? validator;
   final AutovalidateMode? autovalidateMode;
-  final IconData onAddIcon;
+  final Widget onAddIcon;
 
   dynamic onChanged;
   dynamic value;
@@ -165,7 +165,7 @@ class _BoringDropdownState<T> extends State<BoringDropdown<T>> {
           onPressed: () {
             _onAdd(context);
           },
-          icon: Icon(widget.onAddIcon),
+          icon: widget.onAddIcon,
         ),
       );
 
