@@ -93,7 +93,7 @@ class _BoringDropdownState<T> extends State<BoringDropdown<T>> {
   Timer? _timer;
 
   final ValueNotifier<bool> _isWriting = ValueNotifier(false);
-
+  bool get _isOverlayOpened => entry != null;
   final layerLink = LayerLink();
 
   void showOverlay(BuildContext context) {
@@ -156,7 +156,9 @@ class _BoringDropdownState<T> extends State<BoringDropdown<T>> {
       },
     );
 
-    WidgetsBinding.instance.addPostFrameCallback((_) => overlay.insert(entry!));
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      overlay.insert(entry!);
+    });
   }
 
   Widget _onAddWidget(BuildContext context) => Theme(
@@ -352,14 +354,23 @@ class _BoringDropdownState<T> extends State<BoringDropdown<T>> {
 
   @override
   Widget build(BuildContext context) {
+    _mainTextFieldFocusNode.addListener(() {
+      if (_mainTextFieldFocusNode.hasFocus) {
+        if (!_isOverlayOpened) {
+          showOverlay(context);
+        }
+      } else {
+        if (_isOverlayOpened) {
+          hideOverlay();
+        }
+      }
+    });
+
     return CompositedTransformTarget(
       link: layerLink,
       child: TextFormField(
         enabled: widget.enabled,
         validator: widget.validator,
-        onTap: () {
-          showOverlay(context);
-        },
         autovalidateMode: widget.autovalidateMode,
         decoration: widget.inputDecoration ?? const InputDecoration(),
         focusNode: _mainTextFieldFocusNode,

@@ -38,11 +38,13 @@ class MyHomePage extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              TextFormField(),
               ValueListenableBuilder(
                 valueListenable: stringItem,
                 builder: (context, value, child) =>
                     BoringDropdown<String>.multichoice(
                   key: dropdownKey,
+                  enabled: true,
                   searchWithFuture: (searchValue) {
                     return Future.delayed(
                       const Duration(seconds: 1),
