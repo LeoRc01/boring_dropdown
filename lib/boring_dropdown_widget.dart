@@ -94,6 +94,7 @@ class _BoringDropdownState<T> extends State<BoringDropdown<T>> {
 
   final ValueNotifier<bool> _isWriting = ValueNotifier(false);
   bool get _isOverlayOpened => entry != null;
+  bool _isMouseHoverOverylay = false;
   final layerLink = LayerLink();
 
   void showOverlay(BuildContext context) {
@@ -267,57 +268,67 @@ class _BoringDropdownState<T> extends State<BoringDropdown<T>> {
               valueListenable: widget._items,
               builder: (context, dropdownItems, child) {
                 return Flexible(
-                  child: ListView.builder(
-                    itemCount: dropdownItems.length,
-                    shrinkWrap: true,
-                    physics: const BouncingScrollPhysics(),
-                    itemBuilder: (context, index) {
-                      T val = dropdownItems[index].value as T;
-                      final isContained = widget._isMultiChoice
-                          ? (widget.value as List<T>?)?.contains(val) ?? false
-                          : false;
-
-                      ValueNotifier<bool> isSelected =
-                          ValueNotifier(isContained);
-
-                      return ValueListenableBuilder(
-                        valueListenable: isSelected,
-                        builder: (context, selected, child) => ListTile(
-                          title: dropdownItems[index].child,
-                          leading: widget._isMultiChoice
-                              ? selected
-                                  ? widget.checkedIcon ??
-                                      const Icon(Icons.check_box)
-                                  : widget.unCheckedIcon ??
-                                      const Icon(Icons.check_box_outline_blank)
-                              : null,
-                          contentPadding:
-                              const EdgeInsets.symmetric(horizontal: 10),
-                          onTap: () {
-                            if (widget._isMultiChoice) {
-                              List<T>? selectedItems = widget.value;
-
-                              if (selectedItems == null) {
-                                selectedItems = [val];
-                                isSelected.value = true;
-                              } else {
-                                if (selectedItems.contains(val)) {
-                                  selectedItems.remove(val);
-                                  isSelected.value = false;
-                                } else {
-                                  selectedItems.add(val);
-                                  isSelected.value = true;
-                                }
-                              }
-                              widget.onChanged(selectedItems);
-                            } else {
-                              widget.onChanged(val);
-                              hideOverlay();
-                            }
-                          },
-                        ),
-                      );
+                  child: MouseRegion(
+                    onEnter: (event) {
+                      _isMouseHoverOverylay = true;
                     },
+                    onExit: (event) {
+                      _isMouseHoverOverylay = false;
+                    },
+                    child: ListView.builder(
+                      itemCount: dropdownItems.length,
+                      shrinkWrap: true,
+                      physics: const BouncingScrollPhysics(),
+                      itemBuilder: (context, index) {
+                        T val = dropdownItems[index].value as T;
+                        final isContained = widget._isMultiChoice
+                            ? (widget.value as List<T>?)?.contains(val) ?? false
+                            : false;
+
+                        ValueNotifier<bool> isSelected =
+                            ValueNotifier(isContained);
+
+                        return ValueListenableBuilder(
+                          valueListenable: isSelected,
+                          builder: (context, selected, child) => ListTile(
+                            title: dropdownItems[index].child,
+                            leading: widget._isMultiChoice
+                                ? selected
+                                    ? widget.checkedIcon ??
+                                        const Icon(Icons.check_box)
+                                    : widget.unCheckedIcon ??
+                                        const Icon(
+                                            Icons.check_box_outline_blank)
+                                : null,
+                            contentPadding:
+                                const EdgeInsets.symmetric(horizontal: 10),
+                            onTap: () {
+                              if (widget._isMultiChoice) {
+                                List<T>? selectedItems = widget.value;
+
+                                if (selectedItems == null) {
+                                  selectedItems = [val];
+                                  isSelected.value = true;
+                                } else {
+                                  if (selectedItems.contains(val)) {
+                                    selectedItems.remove(val);
+                                    isSelected.value = false;
+                                  } else {
+                                    selectedItems.add(val);
+                                    isSelected.value = true;
+                                  }
+                                }
+                                widget.onChanged(selectedItems);
+                              } else {
+                                widget.onChanged(val);
+
+                                hideOverlay();
+                              }
+                            },
+                          ),
+                        );
+                      },
+                    ),
                   ),
                 );
               },
@@ -360,7 +371,7 @@ class _BoringDropdownState<T> extends State<BoringDropdown<T>> {
           showOverlay(context);
         }
       } else {
-        if (_isOverlayOpened) {
+        if (_isOverlayOpened && !_isMouseHoverOverylay) {
           hideOverlay();
         }
       }
