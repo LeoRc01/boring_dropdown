@@ -126,17 +126,17 @@ class _BoringDropdownState<T> extends State<BoringDropdown<T>> {
                   elevation: 10,
                   child: Container(
                     constraints: const BoxConstraints(maxHeight: 250),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        MouseRegion(
-                          onEnter: (event) {
-                            _isMouseHoverOverylay = true;
-                          },
-                          onExit: (event) {
-                            _isMouseHoverOverylay = false;
-                          },
-                          child: Padding(
+                    child: MouseRegion(
+                      onEnter: (event) {
+                        _isMouseHoverOverylay = true;
+                      },
+                      onExit: (event) {
+                        _isMouseHoverOverylay = false;
+                      },
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Row(
                               children: [
@@ -152,9 +152,9 @@ class _BoringDropdownState<T> extends State<BoringDropdown<T>> {
                               ],
                             ),
                           ),
-                        ),
-                        _overlay(context),
-                      ],
+                          _overlay(context),
+                        ],
+                      ),
                     ),
                   ),
                 ),
