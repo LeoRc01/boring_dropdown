@@ -254,7 +254,7 @@ class _BoringDropdownState<T> extends State<BoringDropdown<T>> {
       widget._items.value = widget._originalItems;
       return;
     }
-    widget._items.value = widget._items.value
+    widget._items.value = widget._originalItems
         .where((element) =>
             widget.searchMatchFunction?.call(element.value as T, searchValue) ??
             _defaultSearchMatchFunction(element.value as T, searchValue))

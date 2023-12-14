@@ -45,27 +45,34 @@ class MyHomePage extends StatelessWidget {
                     BoringDropdown<String>.multichoice(
                   key: dropdownKey,
                   enabled: true,
-                  searchWithFuture: (searchValue) {
-                    return Future.delayed(
-                      const Duration(seconds: 1),
-                      () => [
-                        DropdownMenuItem(
-                          value: '1000',
-                          child: Text('1000'),
-                        ),
-                      ],
-                    );
-                  },
-                  items: List.generate(
-                    10,
-                    (index) => DropdownMenuItem(
-                      value: '$index',
-                      child: Text(index.toString()),
-                    ),
-                  ),
+                  // searchWithFuture: (searchValue) {
+                  //   return Future.delayed(
+                  //     const Duration(seconds: 1),
+                  //     () => [
+                  //       DropdownMenuItem(
+                  //         value: '1000',
+                  //         child: Text('1000'),
+                  //       ),
+                  //     ],
+                  //   );
+                  // },
+                  items: [
+                    '#PRODOTTO_GENERICO#',
+                    'Prova prodotto',
+                    'Test123',
+                    'ciao prova'
+                  ]
+                      .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                      .toList(),
+
                   onAdd: (context) async {
                     await Future.delayed(const Duration(seconds: 3));
                     return DropdownMenuItem(value: 'ASD', child: Text('ASD'));
+                  },
+                  searchMatchFunction: (value, searchValue) {
+                    return (value ?? "NONAME")
+                        .toLowerCase()
+                        .contains(searchValue.toLowerCase().trim());
                   },
                   convertItemToString: (element) => element.toString(),
                   onChanged: (selectedElement) {
