@@ -350,6 +350,10 @@ class _BoringDropdownState<T> extends State<BoringDropdown<T>> {
     }
   }
 
+  void overwriteVisualValue(String val) {
+    _mainTextFieldController.text = val;
+  }
+
   @override
   void didUpdateWidget(covariant BoringDropdown<T> oldWidget) {
     setVisualValue();
