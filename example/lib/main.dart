@@ -45,6 +45,11 @@ class MyHomePage extends StatelessWidget {
                     BoringDropdown<String>.multichoice(
                   key: dropdownKey,
                   enabled: true,
+                  searchWithFuture: (searchValue) async {
+                    await Future.delayed(const Duration(seconds: 2));
+                    return [DropdownMenuItem(value: "asd", child: Text("asd"))];
+                  },
+                  //isLoading: false,
                   // searchWithFuture: (searchValue) {
                   //   return Future.delayed(
                   //     const Duration(seconds: 1),

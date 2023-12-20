@@ -10,7 +10,7 @@ class BoringDropdown<T> extends StatefulWidget {
     required List<DropdownMenuItem<T>> items,
     required this.convertItemToString,
     required void Function(T selectedElement) this.onChanged,
-    bool multichoice = false,
+    this.isLoading = false,
     this.onSearchFeedback = const CircularProgressIndicator(),
     this.searchWithFuture,
     this.inputDecoration,
@@ -25,7 +25,7 @@ class BoringDropdown<T> extends StatefulWidget {
     required T? this.value,
   })  : _items = ValueNotifier(items),
         _originalItems = items,
-        _isMultiChoice = multichoice,
+        _isMultiChoice = false,
         checkedIcon = null,
         unCheckedIcon = null,
         searchController = searchController ?? TextEditingController(),
@@ -37,6 +37,7 @@ class BoringDropdown<T> extends StatefulWidget {
       required this.convertItemToString,
       required void Function(List<T> selectedElements) this.onChanged,
       required List<T>? this.value,
+      this.isLoading = false,
       this.onSearchFeedback = const CircularProgressIndicator(),
       this.searchWithFuture,
       this.inputDecoration,
@@ -74,6 +75,7 @@ class BoringDropdown<T> extends StatefulWidget {
   final String? Function(String?)? validator;
   final AutovalidateMode? autovalidateMode;
   final Widget onAddIcon;
+  final bool isLoading;
 
   dynamic onChanged;
   dynamic value;
@@ -93,7 +95,7 @@ class _BoringDropdownState<T> extends State<BoringDropdown<T>> {
 
   Timer? _timer;
 
-  final ValueNotifier<bool> _isWriting = ValueNotifier(false);
+  late ValueNotifier<bool> _isWriting;
   bool get _isOverlayOpened => entry != null;
   bool _isMouseHoverOverylay = false;
   final layerLink = LayerLink();
@@ -363,6 +365,7 @@ class _BoringDropdownState<T> extends State<BoringDropdown<T>> {
 
   @override
   void initState() {
+    _isWriting = ValueNotifier(widget.isLoading);
     setVisualValue();
     super.initState();
   }
