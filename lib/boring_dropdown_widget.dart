@@ -360,7 +360,7 @@ class _BoringDropdownState<T> extends State<BoringDropdown<T>> {
   @override
   void didUpdateWidget(covariant BoringDropdown<T> oldWidget) {
     setVisualValue();
-    _isWriting.value = oldWidget.isLoading;
+    Future.microtask(() => _isWriting.value = widget.isLoading);
     super.didUpdateWidget(oldWidget);
   }
 
